@@ -15,8 +15,13 @@ on:
         options:
           - chp
           - chpcc
+      expected_version:
+        description: Expected visible version, without the leading v (for example 1.108)
+        required: true
+        default: '1.108'
+        type: string
 
-run-name: ${{ inputs.application }} smoke — ${{ inputs.target_url }}
+run-name: ${{ inputs.application }} v${{ inputs.expected_version }} smoke — ${{ inputs.target_url }}
 
 permissions:
   contents: read
@@ -33,6 +38,7 @@ jobs:
     env:
       TEST_BASE_URL: ${{ inputs.target_url }}
       TEST_APPLICATION: ${{ inputs.application }}
+      TEST_EXPECTED_VERSION: ${{ inputs.expected_version }}
       CI: 'true'
 
     steps:
