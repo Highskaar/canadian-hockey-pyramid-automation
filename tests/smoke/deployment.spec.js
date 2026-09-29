@@ -4,6 +4,15 @@ const ignoredConsolePatterns = [
   /outgoingmessage\.prototype\._headers is deprecated/i
 ];
 
+test.beforeEach(async ({ page }) => {
+  await page.route('https://stats.canadianhockeypyramid.com/\*\*', route =>
+    route.fulfill({
+      status: 204,
+      body: ''
+    })
+  );
+});
+
 function monitorCriticalErrors(page) {
   const errors = [];
 
