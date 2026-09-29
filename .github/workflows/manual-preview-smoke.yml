@@ -1,0 +1,66 @@
+name: Manual preview smoke test
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: Exact HTTPS Cloudflare preview or production URL
+        required: true
+        type: string
+      application:
+        description: Application being tested
+        required: true
+        default: chp
+        type: choice
+        options:
+          - chp
+          - chpcc
+
+run-name: ${{ inputs.application }} smoke — ${{ inputs.target_url }}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: smoke-${{ inputs.application }}-${{ inputs.target_url }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Smoke test exact deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TEST_BASE_URL: ${{ inputs.target_url }}
+      TEST_APPLICATION: ${{ inputs.application }}
+      CI: 'true'
+
+    steps:
+      - name: Check out automation repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke tests
+        run: npm run test:smoke
+
+      - name: Upload failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-failure-${{ inputs.application }}-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7

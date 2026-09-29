@@ -1,0 +1,13 @@
+{
+  "name": "canadian-hockey-pyramid-automation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Public Playwright automation for CHP and CHPCC deployments",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test tests/smoke"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}
