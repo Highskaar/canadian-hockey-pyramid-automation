@@ -5,12 +5,29 @@ const ignoredConsolePatterns = [
 ];
 
 test.beforeEach(async ({ page }) => {
-  await page.route('https://stats.canadianhockeypyramid.com/\*\*', route =>
-    route.fulfill({
-      status: 204,
-      body: ''
-    })
-  );
+  await page.addInitScript(() => {
+    const analyticsOrigin = 'https://stats.canadianhockeypyramid.com';
+    const originalFetch = window.fetch.bind(window);
+    const originalSendBeacon = navigator.sendBeacon.bind(navigator);
+
+    window.fetch = (input, init) => {
+      const url = typeof input === 'string' ? input : input?.url;
+
+      if (url?.startsWith(analyticsOrigin)) {
+        return Promise.resolve(new Response(null, { status: 204 }));
+      }
+
+      return originalFetch(input, init);
+    };
+
+    navigator.sendBeacon = (url, data) => {
+      if (String(url).startsWith(analyticsOrigin)) {
+        return true;
+      }
+
+      return originalSendBeacon(url, data);
+    };
+  });
 });
 
 function monitorCriticalErrors(page) {
