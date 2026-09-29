@@ -50,11 +50,34 @@ const test = base.extend({
   }
 });
 
+async function dismissIntro(page) {
+  const overlay = page.locator('#p4Overlay');
+  await overlay.waitFor({ state: 'attached' });
+  await expect(overlay).toBeVisible();
+
+  const dontShowAgain = page.locator('[data-p4-dont]');
+  await dontShowAgain.check();
+
+  const continueButton = page.locator('[data-p4-new]');
+  const coarsePointer = await page.evaluate(() => matchMedia('(pointer: coarse)').matches);
+  if (coarsePointer) {
+    await continueButton.tap();
+  } else {
+    await continueButton.click();
+  }
+
+  await expect(overlay).toHaveClass(/hidden/);
+  await expect.poll(() =>
+    page.evaluate(() => localStorage.getItem('chp-intro-hidden-v1'))
+  ).toBe('1');
+}
+
 async function openApp(page) {
   const response = await page.goto('/', { waitUntil: 'domcontentloaded' });
   expect(response, 'The main document did not return a response').not.toBeNull();
   expect(response.ok(), `Main document returned HTTP ${response.status()}`).toBeTruthy();
   await page.waitForFunction(() => window.CHP_BOOTSTRAP_READY === true);
+  await dismissIntro(page);
   await expect(page.locator('#mainView')).toBeVisible();
   await expect(page.locator('#tierTabs button').first()).toBeVisible();
   return response;
