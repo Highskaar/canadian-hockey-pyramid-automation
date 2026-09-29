@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Playwright outputs
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# Test artifacts
+*.log
+coverage/
+screenshots/
+videos/
+traces/
+
+# Environment files and local secrets
+.env
+.env.*
+!.env.example
+
+# Local application and save data
+*.save
+*.sav
+*.jsonl
+*.sqlite
+*.sqlite3
+*.db
+*.zip
+*.tar
+*.gz
+*.7z
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+tmp/
+temp/
+.cache/
