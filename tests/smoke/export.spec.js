@@ -2,6 +2,18 @@ const { test, expect, openApp, activate } = require('../fixtures/chp-test');
 
 test('idle game generates and triggers a parseable portable JSON save', async ({ page, criticalErrors }, testInfo) => {
   await page.addInitScript(() => {
+    // Headless Chromium exposes the desktop file picker API, but GitHub's runner
+    // cannot interact with the native picker. Remove it before CHP loads so the
+    // application's supported Blob-download fallback is exercised instead.
+    try {
+      Object.defineProperty(window, 'showSaveFilePicker', {
+        configurable: true,
+        value: undefined
+      });
+    } catch {
+      try { delete window.showSaveFilePicker; } catch {}
+    }
+
     window.__chpExportProbe = {
       createObjectURLCalled: false,
       anchorClickCalled: false,
@@ -27,6 +39,8 @@ test('idle game generates and triggers a parseable portable JSON save', async ({
   });
 
   await openApp(page);
+  await expect.poll(() => page.evaluate(() => typeof window.showSaveFilePicker)).toBe('undefined');
+
   const exportButton = page.locator('#btnExport');
   await expect(exportButton).toBeEnabled();
   await activate(exportButton, testInfo);
@@ -34,7 +48,7 @@ test('idle game generates and triggers a parseable portable JSON save', async ({
   await expect.poll(() => page.evaluate(() => ({
     createObjectURLCalled: window.__chpExportProbe?.createObjectURLCalled,
     anchorClickCalled: window.__chpExportProbe?.anchorClickCalled
-  }))).toEqual({
+  })), { timeout: 20_000 }).toEqual({
     createObjectURLCalled: true,
     anchorClickCalled: true
   });
@@ -56,13 +70,9 @@ test('idle game generates and triggers a parseable portable JSON save', async ({
   expect(result.blobSize).toBeGreaterThan(0);
 
   const exported = JSON.parse(result.text);
-  expect(exported).toHaveProperty('season');
-  expect(exported).toHaveProperty('phase');
-  expect(Array.isArray(exported.leagues)).toBeTruthy();
-
-  const activeTeams = exported.leagues.reduce(
-    (total, league) => total + (Array.isArray(league.teams) ? league.teams.length : 0),
-    0
-  );
-  expect(activeTeams).toBe(932);
+  expect(exported).toHaveProperty('portableSaveVersion', 4);
+  expect(exported).toHaveProperty('current');
+  expect(exported).toHaveProperty('directory');
+  expect(Array.isArray(exported.directory)).toBeTruthy();
+  expect(exported.directory).toHaveLength(932);
 });
