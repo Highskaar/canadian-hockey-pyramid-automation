@@ -1,19 +1,20 @@
 # CHP release-candidate gate
 
-This gate targets one exact immutable Cloudflare deployment URL after the fast preview suite has passed.
+This gate targets one exact immutable Cloudflare deployment after the fast preview suite has passed.
 
-Initial coverage:
+Coverage now includes:
 
-- deterministic random seed installed before application code
-- complete regular season, Cup, playoffs, playouts, qualifiers, and season finalization through the real UI action
-- verified season-complete checkpoint
+- deterministic complete-season lifecycle and checkpoint
+- Cup, playoffs, playouts, qualifiers, season finalization and next-season transition
 - portable-save version 4 and exact 932-team directory
-- permanent season record and next-season destination map
-- next-season transition to 2027/28
-- removal of the consumed nextLeagueAssignments map
-- new-season zero-GP state and reload persistence
-- portable export/import round-trip from a completed season
-- restored completed-season state surviving reload
-- browser, console, network, analytics, and persistence checks inherited from the shared fixture
+- unique and identical active/directory team-ID sets
+- exact 64-division topology and tier capacities
+- permanent summaries and 932 histories
+- completed-season export/import round trip
+- phase-aware exports at fresh regular season, regular-complete, season-complete and new season
+- custom-club creation, stable ID, capacity preservation, season transition, export/import and reload survival
+- five deterministic seasons with exact history-row growth
+- removal of consumed nextLeagueAssignments after each season transition
+- browser, console, network, analytics, persistence and test-isolation checks inherited from the shared fixture
 
-This is the first release-candidate gate. Additional phase-aware export/import, deeper Create Club chain validation, statistics regressions, Cup-specific assertions, and longer benchmarks remain planned.
+The workflow remains manual while this bundled expansion is validated. Production deployment is not performed by this workflow.
