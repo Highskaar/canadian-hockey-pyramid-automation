@@ -37,10 +37,17 @@ async function installExportCapture(page) {
 
 async function exportPortable(page, testInfo) {
   await expect(page.locator('#btnExport')).toBeEnabled({ timeout: 20_000 });
+
+  const previousClicks = await page.evaluate(
+    () => window.__rcExport?.clicks || 0
+  );
+
   await activate(page.locator('#btnExport'), testInfo);
-  await expect.poll(() => page.evaluate(() => window.__rcExport?.clicks || 0), {
-    timeout: 30_000
-  }).toBeGreaterThan(0);
+
+  await expect.poll(
+    () => page.evaluate(() => window.__rcExport?.clicks || 0),
+    { timeout: 30_000 }
+  ).toBeGreaterThan(previousClicks);
   const result = await page.evaluate(async () => ({
     filename: window.__rcExport.filename,
     text: await window.__rcExport.blob.text()
