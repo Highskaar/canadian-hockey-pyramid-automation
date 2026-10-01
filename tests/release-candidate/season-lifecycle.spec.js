@@ -73,7 +73,9 @@ test('deterministic full-season lifecycle, checkpoint, next season and reload', 
   expect(activeTeamCount(completed.save)).toBe(932);
   expect(completed.save.current.phase).toBe('season-complete');
   expect(completed.save.current.post?.stage).toBe('complete');
-  expect(completed.save.current.permanentSeasonRecords?.length).toBeGreaterThanOrEqual(1);
+  expect(Array.isArray(completed.save.summaries)).toBeTruthy();
+  expect(completed.save.summaries.length).toBeGreaterThanOrEqual(1);
+  expect(completed.save.summaries[0]?.season).toBe('2026/27');
   expect(completed.save.current.nextLeagueAssignments).toBeTruthy();
 
   const nextButton = page.locator('[data-sim="next"]').first();
