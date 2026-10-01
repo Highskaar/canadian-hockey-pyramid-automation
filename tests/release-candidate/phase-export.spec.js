@@ -19,10 +19,11 @@ test('portable saves are coherent before and after regular-season completion', a
   await activate(page.locator('[data-sim="regular"]'), testInfo);
   const regularComplete = await exportPortable(page, activate, testInfo);
   assertPortableIntegrity(regularComplete.save, 2026, 'regular-complete');
-  expect(regularComplete.save.current.post).toBeTruthy();
+  expect(regularComplete.save.current.post).toBeNull();
+  expect(regularComplete.save.current.cup?.complete).toBeFalsy();
   expect(regularComplete.save.summaries).toHaveLength(0);
 
-  await activate(page.locator('[data-sim="postall"]'), testInfo);
+  await activate(page.locator('[data-sim="season"]'), testInfo);
   const seasonComplete = await exportPortable(page, activate, testInfo);
   assertPortableIntegrity(seasonComplete.save, 2026, 'season-complete');
   expect(seasonComplete.save.current.post?.stage).toBe('complete');
