@@ -1,0 +1,41 @@
+name: Manual production smoke test
+
+on:
+  workflow_dispatch:
+
+run-name: CHP production smoke — v1.108
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chp-production-smoke
+  cancel-in-progress: false
+
+jobs:
+  production-smoke:
+    name: Non-destructive production smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Run non-destructive production smoke tests
+        run: npx playwright test tests/production --workers=1
+      - name: Upload failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-smoke-failure-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
