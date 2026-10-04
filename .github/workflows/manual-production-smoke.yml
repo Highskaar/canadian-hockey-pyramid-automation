@@ -19,6 +19,7 @@ jobs:
     timeout-minutes: 15
     env:
       CI: 'true'
+      TEST_BASE_URL: https://www.canadianhockeypyramid.com
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v6
