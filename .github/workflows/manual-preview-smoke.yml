@@ -57,8 +57,23 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run smoke tests
-        run: npm run test:smoke
+      - name: Run application-specific smoke tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          case "${TEST_APPLICATION}" in
+            chp)
+              npx playwright test tests/smoke
+              ;;
+            chpcc)
+              npx playwright test tests/chpcc-smoke
+              ;;
+            *)
+              echo "Unsupported application: ${TEST_APPLICATION}"
+              exit 1
+              ;;
+          esac
 
       - name: Upload failure evidence
         if: failure()
