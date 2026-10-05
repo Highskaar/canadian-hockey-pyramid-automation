@@ -19,10 +19,15 @@ const test = base.extend({
           : null;
 
       window.fetch = (input, init) => {
-        const url = typeof input === 'string' ? input : input?.url;
+        const url =
+          typeof input === 'string'
+            ? input
+            : input?.url;
 
         if (url?.startsWith(origin)) {
-          return Promise.resolve(new Response(null, { status: 204 }));
+          return Promise.resolve(
+            new Response(null, { status: 204 })
+          );
         }
 
         return originalFetch(input, init);
@@ -40,12 +45,12 @@ const test = base.extend({
     }, analyticsOrigin);
 
     page.on('pageerror', error => {
-      errors.push(Uncaught page error: ${error.message});
+      errors.push(`Uncaught page error: ${error.message}`);
     });
 
     page.on('console', message => {
       if (message.type() === 'error') {
-        errors.push(Console error: ${message.text()});
+        errors.push(`Console error: ${message.text()}`);
       }
     });
 
@@ -57,8 +62,8 @@ const test = base.extend({
       const failure = request.failure();
 
       errors.push(
-        Failed request: ${request.method()} ${request.url()}  +
-        (${failure?.errorText || 'unknown error'})
+        `Failed request: ${request.method()} ${request.url()} ` +
+        `(${failure?.errorText || 'unknown error'})`
       );
     });
 
@@ -80,13 +85,13 @@ async function openCHPCC(page) {
 
   expect(
     response.ok(),
-    CHPCC main document returned HTTP ${response.status()}
+    `CHPCC main document returned HTTP ${response.status()}`
   ).toBeTruthy();
 
   await expect(page.locator('body')).not.toBeEmpty();
 }
 
-test('CHPCC deployment loads the expected v0.22 release', async ({
+test('CHPCC deployment loads the expected release', async ({
   observed
 }) => {
   const { page } = observed;
@@ -94,7 +99,7 @@ test('CHPCC deployment loads the expected v0.22 release', async ({
   await openCHPCC(page);
 
   await expect(page.locator('body')).toContainText(
-    v${expectedVersion}
+    `v${expectedVersion}`
   );
 });
 
@@ -110,7 +115,8 @@ test('CHPCC deployment remains available after reload', async ({
   });
 
   await expect(page.locator('body')).not.toBeEmpty();
+
   await expect(page.locator('body')).toContainText(
-    v${expectedVersion}
+    `v${expectedVersion}`
   );
 });
