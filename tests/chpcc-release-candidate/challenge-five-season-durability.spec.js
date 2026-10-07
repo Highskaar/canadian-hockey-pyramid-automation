@@ -234,8 +234,8 @@ test(
     }
 
     await expect(
-      page.locator('#challengeDashboard')
-    ).toContainText('Season 5 of 100');
+  page.locator('#challengeDashboard')
+).toContainText('Season 6 of 100');
 
     await expect(
       page
@@ -259,8 +259,8 @@ test(
     );
 
     await expect(
-      page.locator('#challengeDashboard')
-    ).toContainText('Season 5 of 100');
+  page.locator('#challengeDashboard')
+).toContainText('Season 6 of 100');
 
     await expect(
       page
