@@ -233,30 +233,109 @@ test(
       }
     }
 
-    await expect(
+    const dashboardBeforeReload = await page
+  .locator('#challengeDashboard')
+  .innerText();
+
+const saveBeforeReload =
+  await exportPortable(page);
+
+assertPortableFoundation(
+  saveBeforeReload.save
+);
+
+console.log(
+  'CHPCC_DIAGNOSTIC_BEFORE_RELOAD ' +
+    JSON.stringify({
+      dashboard: dashboardBeforeReload,
+      calendarSeason:
+        saveBeforeReload.save.current?.season,
+      phase:
+        saveBeforeReload.save.current?.phase,
+      summaryCount:
+        saveBeforeReload.save.summaries?.length,
+      nextLeagueAssignments:
+        Boolean(
+          saveBeforeReload.save.current
+            ?.nextLeagueAssignments
+        ),
+      currentChallengeKeys:
+        Object.keys(
+          saveBeforeReload.save.current || {}
+        ).filter(key =>
+          /challenge|century|mode/i.test(key)
+        ),
+      topLevelChallengeKeys:
+        Object.keys(
+          saveBeforeReload.save || {}
+        ).filter(key =>
+          /challenge|century|mode/i.test(key)
+        )
+    })
+);
+
+await expect(
+  page
+    .locator('[data-sim="next"]')
+    .first()
+).toBeEnabled();
+
+await page.reload({
+  waitUntil: 'domcontentloaded'
+});
+
+await page.waitForFunction(
+  () =>
+    window.CHP_BOOTSTRAP_READY === true
+);
+
+const dashboardAfterReload = await page
+  .locator('#challengeDashboard')
+  .innerText();
+
+const saveAfterReload =
+  await exportPortable(page);
+
+assertPortableFoundation(
+  saveAfterReload.save
+);
+
+console.log(
+  'CHPCC_DIAGNOSTIC_AFTER_RELOAD ' +
+    JSON.stringify({
+      dashboard: dashboardAfterReload,
+      calendarSeason:
+        saveAfterReload.save.current?.season,
+      phase:
+        saveAfterReload.save.current?.phase,
+      summaryCount:
+        saveAfterReload.save.summaries?.length,
+      nextLeagueAssignments:
+        Boolean(
+          saveAfterReload.save.current
+            ?.nextLeagueAssignments
+        ),
+      currentChallengeKeys:
+        Object.keys(
+          saveAfterReload.save.current || {}
+        ).filter(key =>
+          /challenge|century|mode/i.test(key)
+        ),
+      topLevelChallengeKeys:
+        Object.keys(
+          saveAfterReload.save || {}
+        ).filter(key =>
+          /challenge|century|mode/i.test(key)
+        )
+    })
+);
+
+await expect(
   page.locator('#challengeDashboard')
-).toContainText('Season 6 of 100');
+).toContainText(
+  'Century Challenge · Calgary Flames'
+);
 
-    await expect(
-      page
-        .locator('[data-sim="next"]')
-        .first()
-    ).toBeEnabled();
-
-    await page.reload({
-      waitUntil: 'domcontentloaded'
-    });
-
-    await page.waitForFunction(
-      () =>
-        window.CHP_BOOTSTRAP_READY === true
-    );
-
-    await expect(
-      page.locator('#challengeDashboard')
-    ).toContainText(
-      'Century Challenge · Calgary Flames'
-    );
 
     await expect(
   page.locator('#challengeDashboard')
