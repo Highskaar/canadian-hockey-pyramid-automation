@@ -154,14 +154,14 @@ test(
     );
 
     await expect(
-      page.locator('#challengeDashboard')
-    ).toContainText('Season 1 of 100');
+  page.locator('#challengeDashboard')
+).toContainText('Season 2 of 100');
 
-    await expect(
-      page
-        .locator('[data-sim="next"]')
-        .first()
-    ).toBeEnabled();
+await expect(
+  page
+    .locator('[data-sim="next"]')
+    .first()
+).toBeEnabled();
 
     const restored =
       await exportPortable(page);
@@ -208,8 +208,8 @@ test(
     );
 
     await expect(
-      page.locator('#challengeDashboard')
-    ).toContainText('Season 1 of 100');
+  page.locator('#challengeDashboard')
+).toContainText('Season 2 of 100');
 
     await expect(
       page
