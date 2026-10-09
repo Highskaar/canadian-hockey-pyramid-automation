@@ -87,7 +87,7 @@ test(
 
     await expect(
       page.locator('#challengeDashboard')
-    ).toContainText('Season 1 of 100');
+    ).toContainText('Season 2 of 100');
 
     const nextButton = page
       .locator('[data-sim="next"]')
