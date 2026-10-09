@@ -259,18 +259,9 @@ console.log(
           saveBeforeReload.save.current
             ?.nextLeagueAssignments
         ),
-      currentChallengeKeys:
-        Object.keys(
-          saveBeforeReload.save.current || {}
-        ).filter(key =>
-          /challenge|century|mode/i.test(key)
-        ),
-      topLevelChallengeKeys:
-        Object.keys(
-          saveBeforeReload.save || {}
-        ).filter(key =>
-          /challenge|century|mode/i.test(key)
-        )
+      challenge:
+  saveBeforeReload.save.current?.challenge || null,
+
     })
 );
 
@@ -315,18 +306,9 @@ console.log(
           saveAfterReload.save.current
             ?.nextLeagueAssignments
         ),
-      currentChallengeKeys:
-        Object.keys(
-          saveAfterReload.save.current || {}
-        ).filter(key =>
-          /challenge|century|mode/i.test(key)
-        ),
-      topLevelChallengeKeys:
-        Object.keys(
-          saveAfterReload.save || {}
-        ).filter(key =>
-          /challenge|century|mode/i.test(key)
-        )
+      challenge:
+  saveAfterReload.save.current?.challenge || null,
+
     })
 );
 
