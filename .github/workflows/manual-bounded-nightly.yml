@@ -3,6 +3,15 @@ name: Manual bounded nightly durability
 on:
   workflow_dispatch:
     inputs:
+      run_target:
+        description: Choose which durability job to run
+        required: true
+        default: both
+        type: choice
+        options:
+          - both
+          - chp
+          - chpcc
       chp_target_url:
         description: Exact immutable HTTPS CHP Cloudflare deployment URL
         required: true
@@ -33,6 +42,7 @@ concurrency:
 
 jobs:
   chp-durability:
+    if: ${{ inputs.run_target == 'both' || inputs.run_target == 'chp' }}
     name: CHP 20-season durability
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -78,6 +88,7 @@ jobs:
           retention-days: 14
 
   chpcc-durability:
+    if: ${{ inputs.run_target == 'both' || inputs.run_target == 'chpcc' }}
     name: CHPCC 20-season durability
     runs-on: ubuntu-latest
     timeout-minutes: 60
