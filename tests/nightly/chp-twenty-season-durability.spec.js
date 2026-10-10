@@ -12,7 +12,7 @@ const {
   assertPortableIntegrity,
   assertExactCapacities
 } = require(
-  '../chp-release-candidate/rc-helpers'
+  '../release-candidate/rc-helpers'
 );
 
 const TOTAL_SEASONS = 20;
