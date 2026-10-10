@@ -1,0 +1,123 @@
+name: Manual bounded nightly durability
+
+on:
+  workflow_dispatch:
+    inputs:
+      chp_target_url:
+        description: Exact immutable HTTPS CHP Cloudflare deployment URL
+        required: true
+        type: string
+      chp_expected_version:
+        description: Expected CHP version without leading v
+        required: true
+        default: '1.108'
+        type: string
+      chpcc_target_url:
+        description: Exact immutable HTTPS CHPCC Cloudflare deployment URL
+        required: true
+        type: string
+      chpcc_expected_version:
+        description: Expected CHPCC version without leading v
+        required: true
+        default: '0.22'
+        type: string
+
+run-name: Bounded durability · CHP v${{ inputs.chp_expected_version }} · CHPCC v${{ inputs.chpcc_expected_version }}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bounded-nightly-durability
+  cancel-in-progress: false
+
+jobs:
+  chp-durability:
+    name: CHP 20-season durability
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      TEST_BASE_URL: ${{ inputs.chp_target_url }}
+      TEST_APPLICATION: chp
+      TEST_EXPECTED_VERSION: ${{ inputs.chp_expected_version }}
+      CI: 'true'
+
+    steps:
+      - name: Check out automation repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run bounded CHP durability test
+        run: >
+          npx playwright test
+          tests/nightly/chp-twenty-season-durability.spec.js
+          --project=desktop-chromium
+          --workers=1
+
+      - name: Upload CHP failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chp-bounded-durability-failure-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  chpcc-durability:
+    name: CHPCC 20-season durability
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      TEST_BASE_URL: ${{ inputs.chpcc_target_url }}
+      TEST_APPLICATION: chpcc
+      TEST_EXPECTED_VERSION: ${{ inputs.chpcc_expected_version }}
+      CI: 'true'
+
+    steps:
+      - name: Check out automation repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run bounded CHPCC durability test
+        run: >
+          npx playwright test
+          tests/nightly/chpcc-twenty-season-durability.spec.js
+          --project=desktop-chromium
+          --workers=1
+
+      - name: Upload CHPCC failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chpcc-bounded-durability-failure-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
