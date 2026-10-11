@@ -257,12 +257,8 @@ test(
 
         const recordedIncome =
           challenge.seasons.reduce(
-            (
-              total,
-              season
-            ) =>
-              total +
-              season.income,
+            (total, season) =>
+              total + season.income,
             0
           );
 
@@ -340,6 +336,44 @@ test(
             })
         );
 
+        if (completed === 5) {
+          const exportedCalgaryHistory =
+            checkpoint.save.histories.find(
+              ([teamId]) =>
+                teamId ===
+                'calgary_flames'
+            );
+
+          const liveBeforeReload =
+            await page.evaluate(() => {
+              const team =
+                allTeams(state).find(
+                  candidate =>
+                    candidate.id ===
+                    'calgary_flames'
+                );
+
+              return {
+                season: state?.season,
+                phase: state?.phase,
+                historyBaseSeason:
+                  state?.historyBaseSeason,
+                history:
+                  team?.history || null
+              };
+            });
+
+          console.log(
+            'CHPCC_HISTORY_BEFORE_RELOAD ' +
+              JSON.stringify({
+                exported:
+                  exportedCalgaryHistory ||
+                  null,
+                live: liveBeforeReload
+              })
+          );
+        }
+
         await page.reload({
           waitUntil:
             'domcontentloaded'
@@ -364,6 +398,34 @@ test(
             .locator('[data-sim="next"]')
             .first()
         ).toBeEnabled();
+
+        if (completed === 5) {
+          const liveAfterReload =
+            await page.evaluate(() => {
+              const team =
+                allTeams(state).find(
+                  candidate =>
+                    candidate.id ===
+                    'calgary_flames'
+                );
+
+              return {
+                season: state?.season,
+                phase: state?.phase,
+                historyBaseSeason:
+                  state?.historyBaseSeason,
+                history:
+                  team?.history || null
+              };
+            });
+
+          console.log(
+            'CHPCC_HISTORY_AFTER_RELOAD ' +
+              JSON.stringify(
+                liveAfterReload
+              )
+          );
+        }
 
         const reloadedCheckpoint =
           await exportPortable(page);
