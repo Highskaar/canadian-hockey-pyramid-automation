@@ -26,33 +26,61 @@ async function dismissCenturyMilestoneIfVisible(
 ) {
   const overlay = page.locator('#p4Overlay');
 
-  if (
-    !await overlay
-      .isVisible()
-      .catch(() => false)
-  ) {
+  const appeared = await overlay
+    .waitFor({
+      state: 'visible',
+      timeout: 10_000
+    })
+    .then(() => true)
+    .catch(() => false);
+
+  if (!appeared) {
     return;
   }
 
-  const keepGoing = overlay.getByRole(
-    'button',
-    {
-      name: 'Keep going',
-      exact: true
-    }
+  const overlayText = await overlay
+    .innerText()
+    .catch(() => '');
+
+  const visibleButtons = overlay
+    .locator('button:visible');
+
+  const buttonLabels = await visibleButtons
+    .allTextContents();
+
+  console.log(
+    'CHPCC_100_OVERLAY ' +
+      JSON.stringify({
+        text: overlayText,
+        buttons: buttonLabels
+      })
   );
 
-  if (
-    await keepGoing
-      .isVisible()
-      .catch(() => false)
-  ) {
-    await keepGoing.click();
+  expect(
+    buttonLabels.length,
+    'The visible season-100 overlay must provide a button that can dismiss it.'
+  ).toBeGreaterThan(0);
 
-    await expect(
-      overlay
-    ).toHaveClass(/hidden/);
-  }
+  const preferredButton = overlay.getByRole(
+    'button',
+    {
+      name: /keep going|continue|close|dismiss|free play/i
+    }
+  ).first();
+
+  const dismissButton = await preferredButton
+    .isVisible()
+    .catch(() => false)
+    ? preferredButton
+    : visibleButtons.last();
+
+  await dismissButton.click();
+
+  await expect(
+    overlay
+  ).toBeHidden({
+    timeout: 30_000
+  });
 }
 
 function assertChallengeIntegrity(
