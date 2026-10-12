@@ -12,6 +12,7 @@ on:
           - both
           - chp
           - chpcc
+          - chp-100
       chp_target_url:
         description: Exact immutable HTTPS CHP Cloudflare deployment URL
         required: true
@@ -31,7 +32,7 @@ on:
         default: '0.22'
         type: string
 
-run-name: Bounded durability · CHP v${{ inputs.chp_expected_version }} · CHPCC v${{ inputs.chpcc_expected_version }}
+run-name: Durability · ${{ inputs.run_target }} · CHP v${{ inputs.chp_expected_version }} · CHPCC v${{ inputs.chpcc_expected_version }}
 
 permissions:
   contents: read
@@ -127,6 +128,52 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: chpcc-bounded-durability-failure-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  chp-hundred-season-durability:
+    if: ${{ inputs.run_target == 'chp-100' }}
+    name: CHP 100-season durability
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    env:
+      TEST_BASE_URL: ${{ inputs.chp_target_url }}
+      TEST_APPLICATION: chp
+      TEST_EXPECTED_VERSION: ${{ inputs.chp_expected_version }}
+      CI: 'true'
+
+    steps:
+      - name: Check out automation repository
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run CHP 100-season durability benchmark
+        run: >
+          npx playwright test
+          tests/nightly/chp-hundred-season-durability.spec.js
+          --project=desktop-chromium
+          --workers=1
+
+      - name: Upload CHP 100-season failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chp-100-season-durability-failure-${{ github.run_id }}
           path: |
             playwright-report/
             test-results/
