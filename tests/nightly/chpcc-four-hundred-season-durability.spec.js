@@ -660,7 +660,10 @@ test(
             '#challengeDashboard'
           )
         ).toContainText(
-          `Season ${completed + 1} of 100`,
+          `Season ${Math.min(
+            CHALLENGE_SEASONS,
+            completed + 1
+          )} of 100`,
           {
             timeout: 60_000
           }
