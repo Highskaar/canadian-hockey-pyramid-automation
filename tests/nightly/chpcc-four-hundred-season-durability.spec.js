@@ -159,13 +159,18 @@ function assertChallengeIntegrity(
   ).toBe(cupTitles);
 
   if (
-    completed ===
+    completed >=
     CHALLENGE_SEASONS
   ) {
     expect(
       challenge.complete
     ).toBeTruthy();
+  }
 
+  if (
+    completed ===
+    CHALLENGE_SEASONS
+  ) {
     expect(
       challenge.result
     ).toEqual({
@@ -270,7 +275,7 @@ test(
 
     let finalCompletedExport = null;
     let finalChallenge = null;
-    let completedChallengeSnapshot = null;
+    let completedChallengeResult = null;
 
     for (
       let completed = 1;
@@ -425,30 +430,28 @@ test(
           checkpoint.save.current
             ?.challenge;
 
-        const expectedChallengeSeasons =
-          Math.min(
-            completed,
-            CHALLENGE_SEASONS
-          );
-
         assertChallengeIntegrity(
           challenge,
-          expectedChallengeSeasons
+          completed
         );
 
         if (completed === CHALLENGE_SEASONS) {
-          completedChallengeSnapshot =
-            structuredClone(challenge);
+          completedChallengeResult =
+            structuredClone(
+              challenge.result
+            );
         } else if (completed > CHALLENGE_SEASONS) {
           expect(
-            completedChallengeSnapshot,
-            'The completed 100-season Challenge snapshot must exist.'
+            completedChallengeResult,
+            'The season-100 Challenge result must exist.'
           ).toBeTruthy();
 
           expect(
-            challenge,
-            'Century Challenge state must remain frozen after season 100.'
-          ).toEqual(completedChallengeSnapshot);
+            challenge.result,
+            'The completed Challenge result must remain frozen while the free-play reward ledger continues.'
+          ).toEqual(
+            completedChallengeResult
+          );
         }
 
         console.log(
@@ -603,7 +606,7 @@ test(
 
         assertChallengeIntegrity(
           reloadedChallenge,
-          expectedChallengeSeasons
+          completed
         );
 
         expect(
@@ -707,7 +710,7 @@ test(
 
     assertChallengeIntegrity(
       finalChallenge,
-      CHALLENGE_SEASONS
+      TOTAL_SEASONS
     );
 
     const importDialogs = [];
@@ -828,7 +831,7 @@ test(
     assertChallengeIntegrity(
       imported.save.current
         ?.challenge,
-      CHALLENGE_SEASONS
+      TOTAL_SEASONS
     );
 
     expect(
@@ -912,7 +915,7 @@ test(
     assertChallengeIntegrity(
       postImportReload.save.current
         ?.challenge,
-      CHALLENGE_SEASONS
+      TOTAL_SEASONS
     );
 
     expect(
