@@ -157,12 +157,13 @@ jobs:
           --project=desktop-chromium
           --workers=1
 
-      - name: Reject unavailable CHPCC 400-season test
+      - name: Run CHPCC 400-season durability benchmark
         if: ${{ inputs.durability_seasons == '400' }}
-        run: |
-          echo "The CHPCC 400-season benchmark has not been created yet."
-          echo "Run the CHP 400-season benchmark first."
-          exit 1
+        run: >
+          npx playwright test
+          tests/nightly/chpcc-four-hundred-season-durability.spec.js
+          --project=desktop-chromium
+          --workers=1
 
       - name: Upload CHPCC failure evidence
         if: failure()
