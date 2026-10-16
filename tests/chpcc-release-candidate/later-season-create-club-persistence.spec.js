@@ -68,7 +68,9 @@ async function createD6Club(page, name) {
   ).first();
   await expect(place).toBeVisible();
   await place.click();
-  await page.locator('#ccTier').selectOption('6');
+  const tier = page.locator('#ccTier');
+  await expect(tier).toBeDisabled();
+  await expect(tier).toHaveValue('6');
   await page.locator('#ccPlan').click();
   await expect(page.locator('#ccPreview')).toContainText(
     'Proposed change'
